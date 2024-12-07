@@ -6,7 +6,7 @@ import { Nav } from "@/components/Nav";
 import { cn } from "@/utils";
 
 export const metadata: Metadata = {
-  title: "CalmME - An AI Therapist",
+  title: "CalmME - Your Personal Therapist",
   description: "Your personal AI Therapist",
 };
 
