@@ -6,8 +6,8 @@ import { Nav } from "@/components/Nav";
 import { cn } from "@/utils";
 
 export const metadata: Metadata = {
-  title: "CalmME - Your Personal Therapist",
-  description: "Your personal AI Therapist",
+  title: "calm/me - your personal therapist",
+  description: "your personal ai therapist",
 };
 
 export default function RootLayout({
