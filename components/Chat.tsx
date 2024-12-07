@@ -6,47 +6,41 @@ import Controls from "./Controls";
 import StartCall from "./StartCall";
 import { ComponentRef, useRef } from "react";
 
-export default function ClientComponent({
-  accessToken,
-}: {
-  accessToken: string;
-}) {
+export default function Chat({ accessToken }: { accessToken: string }) {
   const timeout = useRef<number | null>(null);
   const ref = useRef<ComponentRef<typeof Messages> | null>(null);
-
-  // optional: use configId from environment variable
   const configId = process.env['NEXT_PUBLIC_HUME_CONFIG_ID'];
   
   return (
-    <div
-      className={
-        "relative grow flex flex-col mx-auto w-full overflow-hidden h-[0px]"
-      }
-    >
-      <VoiceProvider
-        auth={{ type: "accessToken", value: accessToken }}
-        configId={configId}
-        onMessage={() => {
-          if (timeout.current) {
-            window.clearTimeout(timeout.current);
-          }
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-yellow-500/5 to-background">
+      <div className="max-w-4xl mx-auto w-full px-4 py-8">
+        <h1 className="text-2xl font-bold mb-8 text-center">chat with calm/me</h1>
+        <div className="relative grow flex flex-col bg-card rounded-2xl border border-border shadow-lg overflow-hidden">
+          <VoiceProvider
+            auth={{ type: "accessToken", value: accessToken }}
+            configId={configId}
+            onMessage={() => {
+              if (timeout.current) {
+                window.clearTimeout(timeout.current);
+              }
 
-          timeout.current = window.setTimeout(() => {
-            if (ref.current) {
-              const scrollHeight = ref.current.scrollHeight;
-
-              ref.current.scrollTo({
-                top: scrollHeight,
-                behavior: "smooth",
-              });
-            }
-          }, 200);
-        }}
-      >
-        <Messages ref={ref} />
-        <Controls />
-        <StartCall />
-      </VoiceProvider>
+              timeout.current = window.setTimeout(() => {
+                if (ref.current) {
+                  const scrollHeight = ref.current.scrollHeight;
+                  ref.current.scrollTo({
+                    top: scrollHeight,
+                    behavior: "smooth",
+                  });
+                }
+              }, 200);
+            }}
+          >
+            <Messages ref={ref} />
+            <Controls />
+            <StartCall />
+          </VoiceProvider>
+        </div>
+      </div>
     </div>
   );
 }
