@@ -1,18 +1,14 @@
 "use client";
 
 import { useLayoutEffect, useState } from "react";
-import HumeLogo from "./logos/Hume";
 import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
-import Github from "./logos/GitHub";
-import pkg from '@/package.json';
 
 export const Nav = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useLayoutEffect(() => {
     const el = document.documentElement;
-
     if (el.classList.contains("dark")) {
       setIsDarkMode(true);
     } else {
@@ -27,46 +23,29 @@ export const Nav = () => {
   };
 
   return (
-    <div
-      className={
-        "px-4 py-2 flex items-center h-14 z-50 bg-card border-b border-border"
-      }
-    >
-      <div>
-        <HumeLogo className={"h-5 w-auto"} />
-      </div>
-      <div className={"ml-auto flex items-center gap-1"}>
+    <div className="px-4 py-3 flex items-center h-14 z-50 bg-background border-b border-border">
+      <div className="text-xl font-medium lowercase-all">calm/me</div>
+      <div className="ml-auto flex items-center gap-2">
         <Button
-          onClick={() => {
-            window.open(
-              pkg.homepage,
-              "_blank",
-              "noopener noreferrer"
-            );
-          }}
-          variant={"ghost"}
-          className={"ml-auto flex items-center gap-1.5"}
-        >
-          <span>
-            <Github className={"size-4"} />
-          </span>
-          <span>Star on GitHub</span>
-        </Button>
-        <Button
+          variant="ghost"
+          size="sm"
+          className="lowercase-all"
           onClick={toggleDark}
-          variant={"ghost"}
-          className={"ml-auto flex items-center gap-1.5"}
         >
-          <span>
-            {isDarkMode ? (
-              <Sun className={"size-4"} />
-            ) : (
-              <Moon className={"size-4"} />
-            )}
-          </span>
-          <span>{isDarkMode ? "Light" : "Dark"} Mode</span>
+          {isDarkMode ? (
+            <Sun className="h-4 w-4 mr-2" />
+          ) : (
+            <Moon className="h-4 w-4 mr-2" />
+          )}
+          {isDarkMode ? "light" : "dark"}
+        </Button>
+        <Button size="sm" variant="outline" className="lowercase-all">
+          log in
+        </Button>
+        <Button size="sm" className="lowercase-all bg-primary text-primary-foreground">
+          sign up
         </Button>
       </div>
     </div>
   );
-};
+}

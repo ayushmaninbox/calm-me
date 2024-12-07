@@ -1,7 +1,7 @@
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Phone } from "lucide-react";
+import { Mic } from "lucide-react";
 
 export default function StartCall() {
   const { status, connect } = useVoice();
@@ -10,7 +10,7 @@ export default function StartCall() {
     <AnimatePresence>
       {status.value !== "connected" ? (
         <motion.div
-          className={"fixed inset-0 p-4 flex items-center justify-center bg-background"}
+          className="fixed inset-0 p-4 flex items-center justify-center bg-background/95 backdrop-blur-sm"
           initial="initial"
           animate="enter"
           exit="exit"
@@ -20,34 +20,26 @@ export default function StartCall() {
             exit: { opacity: 0 },
           }}
         >
-          <AnimatePresence>
-            <motion.div
-              variants={{
-                initial: { scale: 0.5 },
-                enter: { scale: 1 },
-                exit: { scale: 0.5 },
+          <motion.div
+            variants={{
+              initial: { scale: 0.95 },
+              enter: { scale: 1 },
+              exit: { scale: 0.95 },
+            }}
+          >
+            <Button
+              className="z-50 flex items-center gap-2 lowercase-all bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-lg"
+              onClick={() => {
+                connect()
+                  .then(() => {})
+                  .catch(() => {})
+                  .finally(() => {});
               }}
             >
-              <Button
-                className={"z-50 flex items-center gap-1.5"}
-                onClick={() => {
-                  connect()
-                    .then(() => {})
-                    .catch(() => {})
-                    .finally(() => {});
-                }}
-              >
-                <span>
-                  <Phone
-                    className={"size-4 opacity-50"}
-                    strokeWidth={2}
-                    stroke={"currentColor"}
-                  />
-                </span>
-                <span>Start Call</span>
-              </Button>
-            </motion.div>
-          </AnimatePresence>
+              <Mic className="h-5 w-5" />
+              connect now
+            </Button>
+          </motion.div>
         </motion.div>
       ) : null}
     </AnimatePresence>
