@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import RootLayoutClient from "./layout.client";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
-import { cn } from "@/utils";
 
 export const metadata: Metadata = {
   title: "calm/me - your personal therapist",
@@ -17,16 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          GeistSans.variable,
-          GeistMono.variable,
-          "flex flex-col min-h-screen"
-        )}
-      >
-        <Nav />
-        {children}
-      </body>
+      <RootLayoutClient>{children}</RootLayoutClient>
     </html>
   );
 }

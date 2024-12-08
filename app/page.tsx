@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Mic, Shield, Brain } from 'lucide-react';
 import FAQ from '@/components/FAQ';
 import { FeatureCard } from '@/components/FeatureCard';
+import { Footer } from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
           talk through your problems with <span className="text-yellow-500">ease.</span>
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl">
-          no high fees, no wait times, no downloads, no hassle— just therapy with an empathetic AI whenever and wherever you need it.
+          no fees, no wait times, no downloads, no hassle— just therapy with an empathetic AI whenever and wherever you need it.
         </p>
         <Link href="/chat">
           <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8">
@@ -55,10 +56,13 @@ export default function Home() {
         <p className="text-muted-foreground mb-8">be heard. be understood. be better.</p>
         <Link href="/chat">
           <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8">
-            try calm/me free
+            try calm/me for free
           </Button>
         </Link>
       </section>
+
+      {/* Footer */}
+      <Footer />
     </main>
   );
 }

@@ -27,51 +27,66 @@ const faqs = [
   }
 ];
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-    const [isOpen, setIsOpen] = useState(false);
-  
-    return (
-      <div className="border-b border-border">
-        <button
-          className="w-full py-4 px-6 flex items-center justify-between text-left"
-          onClick={() => setIsOpen(!isOpen)}
+function FAQItem({ 
+  question, 
+  answer, 
+  isOpen, 
+  onToggle 
+}: { 
+  question: string; 
+  answer: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="border-b border-border">
+      <button
+        className="w-full py-4 px-6 flex items-center justify-between text-left"
+        onClick={onToggle}
+      >
+        <span className="font-medium">{question}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
         >
-          <span className="font-medium">{question}</span>
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
           <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
+            className="overflow-hidden"
           >
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            <p className="px-6 pb-4 text-muted-foreground">{answer}</p>
           </motion.div>
-        </button>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <p className="px-6 pb-4 text-muted-foreground">{answer}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
-  
-  export default function FAQ() {
-    return (
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">frequently asked questions</h2>
-          <div className="bg-card rounded-lg border border-border overflow-hidden">
-            {faqs.map((faq, index) => (
-              <FAQItem key={index} {...faq} />
-            ))}
-          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function FAQ() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  return (
+    <section className="py-20 bg-muted/30">
+      <div className="max-w-3xl mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12">frequently asked questions</h2>
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          {faqs.map((faq, index) => (
+            <FAQItem 
+              key={index} 
+              {...faq} 
+              isOpen={openIndex === index}
+              onToggle={() => setOpenIndex(openIndex === index ? null : index)}
+            />
+          ))}
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}

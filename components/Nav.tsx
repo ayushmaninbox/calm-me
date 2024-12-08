@@ -3,6 +3,8 @@
 import { useLayoutEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
+import { Logo } from "./Logo";
+import Link from "next/link";
 
 export const Nav = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -24,7 +26,10 @@ export const Nav = () => {
 
   return (
     <div className="px-4 py-3 flex items-center h-14 z-50 bg-background border-b border-border">
-      <div className="text-xl font-medium lowercase-all">calm/me</div>
+      <Link href="/" className="flex items-center gap-2">
+        <Logo />
+        <div className="text-xl font-bold lowercase-all">calm/me</div>
+      </Link>
       <div className="ml-auto flex items-center gap-2">
         <Button
           variant="ghost"
