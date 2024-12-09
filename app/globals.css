@@ -27,24 +27,24 @@
   }
 
   .dark {
-    --background: 240 10% 10%;
+    --background: 212 12% 13%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 12%;
+    --card: 212 12% 13%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 10%;
+    --popover: 212 12% 13%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 212 12% 17.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 212 12% 17.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 212 12% 17.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 212 12% 17.9%;
+    --input: 212 12% 17.9%;
     --ring: 240 4.9% 83.9%;
   }
 }
@@ -53,25 +53,78 @@
   * {
     @apply border-border font-sans;
   }
-  
-  html {
-    @apply antialiased;
-  }
-  
   body {
     @apply bg-background text-foreground;
-  }
-  
-  /* Smooth transitions for all color-related properties */
-  *, *::before, *::after {
-    transition: background-color 0.3s ease-in-out,
-                border-color 0.3s ease-in-out,
-                color 0.3s ease-in-out,
-                opacity 0.3s ease-in-out,
-                box-shadow 0.3s ease-in-out;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
-.lowercase-all {
-  text-transform: lowercase;
+
+/* Theme transition */
+.theme-transition * {
+  transition: 
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease !important;
+}
+
+/* Loading screen */
+.loading-screen {
+  transition: background-color 0.5s ease;
+}
+
+/* Image upload */
+.image-upload-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 9999px;
+}
+
+.image-upload-button {
+  @apply absolute bottom-0 right-0 p-1.5 bg-primary text-primary-foreground rounded-full 
+    hover:bg-primary/90 transition-all duration-200 ease-in-out
+    hover:scale-110 active:scale-95;
+}
+
+/* Account page sections */
+.account-section {
+  @apply bg-card rounded-2xl border border-border p-6 mb-6
+    transition-all duration-300 ease-in-out
+    hover:shadow-lg hover:border-primary/20;
+}
+
+/* Form inputs */
+.form-input {
+  @apply w-full p-2 rounded-lg border border-border bg-background 
+    focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
+    transition-all duration-200 ease-in-out;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-yellow-500 hover:bg-yellow-600 text-black
+    transition-all duration-200 ease-in-out
+    hover:scale-[1.02] active:scale-[0.98];
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
 }

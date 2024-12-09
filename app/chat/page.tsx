@@ -15,14 +15,19 @@ export default function ChatPage() {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/");
+    if (!loading) {
+      if (!user) {
+        router.push("/");
+      } else if (!user.emailVerified) {
+        // Redirect unverified users
+        router.push("/?verify=true");
+      }
     }
   }, [user, loading, router]);
 
   useEffect(() => {
     const initializeChat = async () => {
-      if (!user) return;
+      if (!user || !user.emailVerified) return;
       
       try {
         const res = await fetch("/api/auth");
@@ -40,7 +45,7 @@ export default function ChatPage() {
     }
   }, [user]);
 
-  if (loading || !user) {
+  if (loading || !user || !user.emailVerified) {
     return <LoadingScreen />;
   }
 

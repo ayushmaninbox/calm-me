@@ -16,15 +16,23 @@ export default function RootLayoutClient({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Preload Google favicon
-    const img = new Image();
-    img.src = "https://www.google.com/favicon.ico";
+    // Check localStorage for theme preference
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
+    } else {
+      // Set light mode as default
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
 
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (

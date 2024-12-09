@@ -1,109 +1,157 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, User, LogOut, Settings } from "lucide-react";
 import { Logo } from "./Logo";
 import Link from "next/link";
 import { AuthModal } from "./AuthModal";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 export const Nav = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [user] = useAuthState(auth);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    const el = document.documentElement;
-    if (el.classList.contains("dark")) {
-      setIsDarkMode(true);
-    } else {
-      setIsDarkMode(false);
-    }
+  useEffect(() => {
+    // Get theme from localStorage, default to light if not set
+    const storedTheme = localStorage.getItem("theme");
+    const isDark = storedTheme === "dark";
+    setIsDarkMode(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+
+    // Handle clicks outside profile menu
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleDark = () => {
-    const el = document.documentElement;
-    el.classList.toggle("dark");
-    setIsDarkMode((prev) => !prev);
-  };
-
-  const handleAuth = (mode: "login" | "signup") => {
-    setAuthMode(mode);
-    setShowAuthModal(true);
+    const newTheme = !isDarkMode;
+    document.documentElement.classList.toggle("dark", newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+    setIsDarkMode(newTheme);
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      setShowProfileMenu(false);
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
 
   return (
-    <>
-      <div className="px-4 py-3 flex items-center h-14 z-50 bg-background border-b border-border">
-        <Link href="/" className="flex items-center gap-2">
-          <Logo />
-          <div className="text-xl font-bold lowercase-all">calm/me</div>
-        </Link>
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lowercase-all"
-            onClick={toggleDark}
-          >
-            {isDarkMode ? (
-              <Sun className="h-4 w-4 mr-2" />
-            ) : (
-              <Moon className="h-4 w-4 mr-2" />
-            )}
-            {isDarkMode ? "light" : "dark"}
-          </Button>
-          
-          {user ? (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="lowercase-all"
-                onClick={handleLogout}
-              >
-                log out
-              </Button>
-            </>
+    <header className="px-4 py-2 flex items-center h-14 z-50 bg-background border-b border-border transition-colors duration-300">
+      <Link href="/" className="flex items-center gap-2">
+        <Logo className="w-5 h-5" />
+        <div className="text-xl font-bold lowercase-all">calm/me</div>
+      </Link>
+      <div className="ml-auto flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="lowercase-all"
+          onClick={toggleDark}
+        >
+          {isDarkMode ? (
+            <Sun className="h-4 w-4 mr-2" />
           ) : (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="lowercase-all"
-                onClick={() => handleAuth("login")}
-              >
-                log in
-              </Button>
-              <Button
-                size="sm"
-                className="lowercase-all bg-primary text-primary-foreground"
-                onClick={() => handleAuth("signup")}
-              >
-                sign up
-              </Button>
-            </>
+            <Moon className="h-4 w-4 mr-2" />
           )}
-        </div>
+          {isDarkMode ? "light" : "dark"}
+        </Button>
+
+        {user ? (
+          <div className="relative" ref={profileMenuRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="profile-button"
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+            >
+              {user.photoURL ? (
+                <Image
+                  src={user.photoURL}
+                  alt="Profile"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  unoptimized
+                />
+              ) : (
+                <div className="profile-button-placeholder">
+                  <User className="h-4 w-4" />
+                </div>
+              )}
+            </Button>
+
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border overflow-hidden"
+                >
+                  <div className="px-4 py-2 border-b border-border">
+                    <p className="text-sm font-medium truncate">
+                      {user.displayName || user.email}
+                    </p>
+                  </div>
+                  <div className="py-1">
+                    <Link
+                      href="/account"
+                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      account settings
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 text-sm w-full text-left hover:bg-muted transition-colors text-destructive"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      log out
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            className="lowercase-all bg-primary text-primary-foreground"
+            onClick={() => setShowAuthModal(true)}
+          >
+            start now
+          </Button>
+        )}
       </div>
 
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        mode={authMode}
+        mode="signup"
       />
-    </>
+    </header>
   );
 };
