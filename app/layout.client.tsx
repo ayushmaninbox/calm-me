@@ -16,6 +16,10 @@ export default function RootLayoutClient({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Preload Google favicon
+    const img = new Image();
+    img.src = "https://www.google.com/favicon.ico";
+
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1500);
@@ -47,7 +51,7 @@ export default function RootLayoutClient({
             key="content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             className="flex flex-col min-h-screen w-full"
           >
             <Nav />

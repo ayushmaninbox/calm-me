@@ -2,22 +2,31 @@
 
 import Chat from "@/components/Chat";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function ChatPage() {
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    if (!loading && !user) {
+      router.push("/");
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
     const initializeChat = async () => {
+      if (!user) return;
+      
       try {
         const res = await fetch("/api/auth");
         const data = await res.json();
-        
-        // Add a minimum loading time to ensure smooth transition
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
         setAccessToken(data.accessToken);
       } catch (error) {
         console.error(error);
@@ -26,8 +35,14 @@ export default function ChatPage() {
       }
     };
 
-    initializeChat();
-  }, []);
+    if (user) {
+      initializeChat();
+    }
+  }, [user]);
+
+  if (loading || !user) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="h-[calc(100vh-3.5rem)] overflow-hidden">
@@ -37,7 +52,7 @@ export default function ChatPage() {
             key="loading"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="absolute inset-0 z-50"
           >
             <LoadingScreen />
@@ -47,7 +62,7 @@ export default function ChatPage() {
             key="chat"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.3 }}
             className="h-full"
           >
             <Chat accessToken={accessToken} />

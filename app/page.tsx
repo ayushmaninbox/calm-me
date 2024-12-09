@@ -1,11 +1,30 @@
+"use client";
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Mic, Shield, Brain } from 'lucide-react';
 import FAQ from '@/components/FAQ';
 import { FeatureCard } from '@/components/FeatureCard';
 import { Footer } from '@/components/Footer';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/lib/firebase';
+import { AuthModal } from '@/components/AuthModal';
+import { useState } from 'react';
 
 export default function Home() {
+  const [user] = useAuthState(auth);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+
+  const handleAction = (action: "connect" | "try") => {
+    if (user) {
+      window.location.href = "/chat";
+    } else {
+      setAuthMode(action === "connect" ? "login" : "signup");
+      setShowAuthModal(true);
+    }
+  };
+
   return (
     <main className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -16,11 +35,13 @@ export default function Home() {
         <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl">
           no fees, no wait times, no downloads, no hassle— just therapy with an empathetic AI whenever and wherever you need it.
         </p>
-        <Link href="/chat">
-          <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8">
-            connect now
-          </Button>
-        </Link>
+        <Button 
+          size="lg" 
+          className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8"
+          onClick={() => handleAction("connect")}
+        >
+          connect now
+        </Button>
       </section>
 
       {/* Features Section */}
@@ -54,15 +75,23 @@ export default function Home() {
       <section className="py-20 text-center">
         <h2 className="text-3xl font-bold mb-4">get started for free</h2>
         <p className="text-muted-foreground mb-8">be heard. be understood. be better.</p>
-        <Link href="/chat">
-          <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8">
-            try calm/me for free
-          </Button>
-        </Link>
+        <Button 
+          size="lg" 
+          className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium px-8"
+          onClick={() => handleAction("try")}
+        >
+          try calm/me for free
+        </Button>
       </section>
 
       {/* Footer */}
       <Footer />
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+      />
     </main>
   );
 }
