@@ -74,7 +74,7 @@ export function Footer() {
                   href="/terms"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  terms of service
+                  terms & services
                 </Link>
               </li>
               <li>
