@@ -5,6 +5,8 @@ import Messages from "./Messages";
 import Controls from "./Controls";
 import StartCall from "./StartCall";
 import { ComponentRef, useRef } from "react";
+import { motion } from "framer-motion";
+import { AudioVisualizer } from "./AudioVisualizer";
 
 export default function Chat({ accessToken }: { accessToken: string }) {
   const timeout = useRef<number | null>(null);
@@ -14,8 +16,7 @@ export default function Chat({ accessToken }: { accessToken: string }) {
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-yellow-500/5 to-background">
       <div className="max-w-4xl mx-auto w-full px-4 py-8 h-full">
-        <h1 className="text-2xl font-bold mb-8 text-center">chat with calm/me</h1>
-        <div className="relative grow flex flex-col bg-card rounded-2xl border border-border shadow-lg overflow-hidden h-[calc(100%-7rem)]">
+        <div className="relative grow flex flex-col bg-card rounded-2xl border border-border shadow-lg overflow-hidden h-[calc(100%-2rem)]">
           <VoiceProvider
             auth={{ type: "accessToken", value: accessToken }}
             configId={configId}
@@ -35,6 +36,14 @@ export default function Chat({ accessToken }: { accessToken: string }) {
               }, 200);
             }}
           >
+            <motion.div 
+              className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-yellow-500/10 to-transparent"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AudioVisualizer />
+            </motion.div>
             <Messages ref={ref} />
             <Controls />
             <StartCall />
