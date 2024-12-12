@@ -6,11 +6,47 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export default function Messages() {
-  const { messages } = useVoice();
+  const { messages, status, isMuted } = useVoice();
   const [currentMessages, setCurrentMessages] = useState<{
     user: typeof messages[0] | null;
     assistant: typeof messages[0] | null;
   }>({ user: null, assistant: null });
+
+  const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    // Update listening state based on mic activity
+    if (status.value === "connected" && !isMuted) {
+      // Use the Web Audio API to detect actual speech
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          const audioContext = new AudioContext();
+          const analyser = audioContext.createAnalyser();
+          const microphone = audioContext.createMediaStreamSource(stream);
+          microphone.connect(analyser);
+          analyser.fftSize = 256;
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+
+          function checkAudioLevel() {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+            setIsListening(average > 30); // Adjust threshold as needed
+            requestAnimationFrame(checkAudioLevel);
+          }
+
+          checkAudioLevel();
+
+          return () => {
+            stream.getTracks().forEach(track => track.stop());
+            audioContext.close();
+          };
+        })
+        .catch(err => console.error("Error accessing microphone:", err));
+    } else {
+      setIsListening(false);
+    }
+  }, [status.value, isMuted]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -33,19 +69,38 @@ export default function Messages() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[300px] gap-6">
-      {/* Assistant Message */}
+      {/* Assistant Message or Listening State */}
       <AnimatePresence mode="wait">
+        {isListening && (
+          <motion.div
+            key="listening"
+            className="absolute top-4 left-0 right-0 text-center px-4 z-10"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div 
+              className="text-xl font-medium text-muted-foreground"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              listening now...
+            </motion.div>
+          </motion.div>
+        )}
         {currentMessages.assistant && (
           <motion.div
-            key={`assistant-${currentMessages.assistant.id}`}
+            key="assistant-message"
             className="absolute top-4 left-0 right-0 text-center px-4"
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ 
-              duration: 0.6,
-              ease: [0.4, 0, 0.2, 1]
-            }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
           >
             <div className="text-xl font-medium">
               {currentMessages.assistant.message.content}
@@ -63,10 +118,7 @@ export default function Messages() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ 
-              duration: 0.6,
-              ease: [0.4, 0, 0.2, 1]
-            }}
+            transition={{ duration: 0.3 }}
           >
             <div className="flex justify-between items-center pt-4 px-4">
               <div className="text-xs capitalize font-medium leading-none opacity-50">

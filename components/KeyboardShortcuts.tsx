@@ -3,14 +3,14 @@ import { motion } from "framer-motion";
 export function KeyboardShortcuts() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ 
+      exit={{ opacity: 0, y: 10 }}
+      transition={{
         duration: 0.5,
-        ease: [0.4, 0, 0.2, 1]
+        ease: [0.4, 0, 0.2, 1],
       }}
-      className="fixed top-16 right-4 text-right text-sm text-muted-foreground space-y-2 z-50"
+      className="fixed bottom-0 right-4 text-right text-sm text-muted-foreground space-y-2 z-50 p-6"
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-end gap-2">
