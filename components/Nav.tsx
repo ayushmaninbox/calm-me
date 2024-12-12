@@ -11,6 +11,7 @@ import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export const Nav = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -18,15 +19,14 @@ export const Nav = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [user] = useAuthState(auth);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    // Get theme from localStorage, default to light if not set
     const storedTheme = localStorage.getItem("theme");
     const isDark = storedTheme === "dark";
     setIsDarkMode(isDark);
     document.documentElement.classList.toggle("dark", isDark);
 
-    // Handle clicks outside profile menu
     const handleClickOutside = (event: MouseEvent) => {
       if (
         profileMenuRef.current &&
@@ -51,17 +51,27 @@ export const Nav = () => {
     try {
       await signOut(auth);
       setShowProfileMenu(false);
+      router.push('/');
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user) {
+      router.push('/chat');
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <header className="px-4 py-2 flex items-center h-14 z-50 bg-background border-b border-border transition-colors duration-300">
-      <Link href="/" className="flex items-center gap-2">
+      <a href={user ? '/chat' : '/'} onClick={handleLogoClick} className="flex items-center gap-2">
         <Logo className="w-5 h-5" />
         <div className="text-xl font-bold lowercase-all">calm/me</div>
-      </Link>
+      </a>
       <div className="ml-auto flex items-center gap-3">
         <Button
           variant="ghost"

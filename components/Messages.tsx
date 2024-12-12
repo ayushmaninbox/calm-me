@@ -22,7 +22,6 @@ export default function Messages() {
         setCurrentMessages(prev => ({ ...prev, assistant: lastMessage }));
       }
     } else {
-      // Reset messages when starting a new conversation
       setCurrentMessages({ user: null, assistant: null });
     }
   }, [messages]);
@@ -40,10 +39,13 @@ export default function Messages() {
           <motion.div
             key={`assistant-${currentMessages.assistant.id}`}
             className="absolute top-4 left-0 right-0 text-center px-4"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ 
+              duration: 0.6,
+              ease: [0.4, 0, 0.2, 1]
+            }}
           >
             <div className="text-xl font-medium">
               {currentMessages.assistant.message.content}
@@ -58,10 +60,13 @@ export default function Messages() {
           <motion.div
             key={`user-${currentMessages.user.id}`}
             className="w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ 
+              duration: 0.6,
+              ease: [0.4, 0, 0.2, 1]
+            }}
           >
             <div className="flex justify-between items-center pt-4 px-4">
               <div className="text-xs capitalize font-medium leading-none opacity-50">

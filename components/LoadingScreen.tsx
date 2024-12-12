@@ -2,12 +2,18 @@ import { motion } from "framer-motion";
 
 export function LoadingScreen() {
   return (
-    <div className="fixed inset-0 bg-background loading-screen flex items-center justify-center">
+    <motion.div 
+      className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <motion.div 
         className="flex flex-col items-center gap-8"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
       >
         <motion.div 
           className="w-24 h-24"
@@ -62,9 +68,9 @@ export function LoadingScreen() {
           transition={{ delay: 0.6, duration: 0.5 }}
           className="text-xl font-medium text-foreground/80"
         >
-          loading calm/me...
+          loading...
         </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

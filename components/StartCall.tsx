@@ -8,9 +8,18 @@ import { Mic } from "lucide-react";
 export default function StartCall() {
   const { status, connect } = useVoice();
 
+  const handleStartSession = async () => {
+    try {
+      // Start connection immediately
+      await connect();
+    } catch (error) {
+      console.error("Failed to start session:", error);
+    }
+  };
+
   return (
     <AnimatePresence mode="wait">
-      {status.value !== "connected" ? (
+      {status.value !== "connected" && status.value !== "connecting" ? (
         <motion.div
           className="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-sm z-40"
           initial={{ opacity: 0 }}
@@ -92,9 +101,7 @@ export default function StartCall() {
             >
               <Button
                 className="w-full max-w-xs h-14 text-lg bg-yellow-500 hover:bg-yellow-600 text-black rounded-full transition-all duration-300 hover:scale-105"
-                onClick={() => {
-                  connect().catch(console.error);
-                }}
+                onClick={handleStartSession}
               >
                 <Mic className="w-5 h-5 mr-2" />
                 begin session

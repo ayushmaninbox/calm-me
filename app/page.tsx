@@ -9,21 +9,35 @@ import { Footer } from '@/components/Footer';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { AuthModal } from '@/components/AuthModal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [user] = useAuthState(auth);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect logged-in users to chat page
+    if (user) {
+      router.push('/chat');
+    }
+  }, [user, router]);
 
   const handleAction = (action: "connect" | "try") => {
     if (user) {
-      window.location.href = "/chat";
+      router.push("/chat");
     } else {
       setAuthMode(action === "connect" ? "login" : "signup");
       setShowAuthModal(true);
     }
   };
+
+  // Only show the home page for logged-out users
+  if (user) {
+    return null;
+  }
 
   return (
     <main className="flex flex-col min-h-screen">
