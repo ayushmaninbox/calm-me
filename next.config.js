@@ -7,25 +7,25 @@ const nextConfig = {
   },
   transpilePackages: ['framer-motion', '@emotion/is-prop-valid'],
   webpack: (config) => {
-    // Add WASM support
-    config.experiments = {
-      ...config.experiments,
-      asyncWebAssembly: true,
-    }
-
-    // Add rule for WASM files
-    config.module.rules.push({
-      test: /\.wasm$/,
-      type: 'webassembly/async',
-    })
-
-    // Existing aliases
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'framer-motion': require.resolve('framer-motion'),
-      '@emotion/is-prop-valid': require.resolve('@emotion/is-prop-valid'),
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve.alias,
+        'framer-motion': require.resolve('framer-motion'),
+        '@emotion/is-prop-valid': require.resolve('@emotion/is-prop-valid'),
+      },
+      fallback: {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+      },
     };
-
     return config;
   },
 };
