@@ -1,75 +1,83 @@
 "use client";
-import { cn } from "@/utils";
+
 import { useVoice } from "@humeai/voice-react";
 import Expressions from "./Expressions";
 import { AnimatePresence, motion } from "framer-motion";
-import { ComponentRef, forwardRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const Messages = forwardRef<
-  ComponentRef<typeof motion.div>,
-  Record<never, never>
->(function Messages(_, ref) {
+export default function Messages() {
   const { messages } = useVoice();
-  const [visibleMessages, setVisibleMessages] = useState<typeof messages>([]);
-  const [currentMessage, setCurrentMessage] = useState<(typeof messages)[0] | null>(null);
+  const [currentMessages, setCurrentMessages] = useState<{
+    user: typeof messages[0] | null;
+    assistant: typeof messages[0] | null;
+  }>({ user: null, assistant: null });
 
   useEffect(() => {
-    // When new message arrives
-    if (messages.length > 0 && messages[messages.length - 1] !== currentMessage) {
-      const newMessage = messages[messages.length - 1];
-      setCurrentMessage(newMessage);
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
       
-      // Clear previous message after animation
-      setTimeout(() => {
-        setVisibleMessages([newMessage]);
-      }, 500);
+      if (lastMessage.type === "user_message") {
+        setCurrentMessages(prev => ({ ...prev, user: lastMessage }));
+      } else if (lastMessage.type === "assistant_message") {
+        setCurrentMessages(prev => ({ ...prev, assistant: lastMessage }));
+      }
+    } else {
+      // Reset messages when starting a new conversation
+      setCurrentMessages({ user: null, assistant: null });
     }
-  }, [messages, currentMessage]);
+  }, [messages]);
+
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
-    <motion.div
-      layoutScroll
-      className="grow overflow-auto px-4 pb-24"
-      ref={ref}
-    >
-      <motion.div className="max-w-2xl mx-auto w-full flex flex-col gap-4">
-        <AnimatePresence mode="popLayout">
-          {visibleMessages.map((msg, index) => {
-            if (msg.type === "user_message" || msg.type === "assistant_message") {
-              return (
-                <motion.div
-                  key={msg.type + index}
-                  className={cn(
-                    "w-[80%] backdrop-blur-sm",
-                    "bg-transparent",
-                    msg.type === "user_message" ? "ml-auto" : ""
-                  )}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ 
-                    duration: 0.5,
-                    ease: "easeOut"
-                  }}
-                >
-                  <div className="text-xs capitalize font-medium leading-none opacity-50 pt-4 px-4">
-                    {msg.message.role}
-                  </div>
-                  <div className="py-3 px-4 text-lg">
-                    {msg.message.content}
-                  </div>
-                  {msg.type === "user_message" && (
-                    <Expressions values={{ ...msg.models.prosody?.scores }} />
-                  )}
-                </motion.div>
-              );
-            }
-            return null;
-          })}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
-  );
-});
+    <div className="relative flex flex-col items-center justify-center min-h-[300px] gap-6">
+      {/* Assistant Message */}
+      <AnimatePresence mode="wait">
+        {currentMessages.assistant && (
+          <motion.div
+            key={`assistant-${currentMessages.assistant.id}`}
+            className="absolute top-4 left-0 right-0 text-center px-4"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            <div className="text-xl font-medium">
+              {currentMessages.assistant.message.content}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-export default Messages;
+      {/* User Message */}
+      <AnimatePresence mode="wait">
+        {currentMessages.user && (
+          <motion.div
+            key={`user-${currentMessages.user.id}`}
+            className="w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            <div className="flex justify-between items-center pt-4 px-4">
+              <div className="text-xs capitalize font-medium leading-none opacity-50">
+                {currentMessages.user.message.role}
+              </div>
+              <div className="text-xs opacity-50">
+                {getCurrentTime()}
+              </div>
+            </div>
+            <div className="py-3 px-4 text-lg">
+              {currentMessages.user.message.content}
+            </div>
+            <Expressions values={{ ...currentMessages.user.models.prosody?.scores }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
