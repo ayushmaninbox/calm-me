@@ -34,6 +34,7 @@
     "server-only": "^0.0.1",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.162.0",
     "ts-pattern": "^5.0.8"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@types/react": "^18.2.61",
     "@types/react-dom": "^18.2.19",
     "@types/react-virtualized": "^9.21.29",
+    "@types/three": "^0.162.0",
     "autoprefixer": "^10.4.18",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.3",
