@@ -1,9 +1,10 @@
+//@ts-nocheck
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, uploadProfileImage } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";

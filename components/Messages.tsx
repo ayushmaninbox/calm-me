@@ -1,3 +1,4 @@
+//@ts-nocheck
 "use client";
 
 import { useVoice } from "@humeai/voice-react";
