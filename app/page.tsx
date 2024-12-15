@@ -10,22 +10,19 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase';
 import { AuthModal } from '@/components/AuthModal';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Chat from '@/components/Chat';
-import { LoadingScreen } from '@/components/LoadingScreen';
 
 export default function Home() {
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const initializeChat = async () => {
-      if (!user || !user.emailVerified) {
-        setIsInitializing(false);
-        return;
-      }
+      if (!user || !user.emailVerified) return;
       
       try {
         const res = await fetch("/api/auth");
@@ -33,20 +30,13 @@ export default function Home() {
         setAccessToken(data.accessToken);
       } catch (error) {
         console.error(error);
-      } finally {
-        setIsInitializing(false);
       }
     };
 
-    if (!loading) {
+    if (user) {
       initializeChat();
     }
-  }, [user, loading]);
-
-  // Show loading screen while initializing
-  if (loading || isInitializing) {
-    return <LoadingScreen />;
-  }
+  }, [user]);
 
   // If user is logged in and verified, show the chat
   if (user?.emailVerified && accessToken) {
@@ -57,33 +47,16 @@ export default function Home() {
     );
   }
 
-  // If user is logged in but not verified, show verification message
-  if (user && !user.emailVerified) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-yellow-500/5 to-background p-4">
-        <div className="max-w-md w-full bg-card p-8 rounded-lg border border-border text-center">
-          <h2 className="text-2xl font-bold mb-4">verify your email</h2>
-          <p className="text-muted-foreground mb-4">
-            please check your inbox and verify your email address to continue.
-          </p>
-          <Button
-            onClick={() => auth.signOut()}
-            variant="outline"
-            className="w-full"
-          >
-            back to home
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   const handleAction = (action: "connect" | "try") => {
     setAuthMode(action === "connect" ? "login" : "signup");
     setShowAuthModal(true);
   };
 
-  // Landing page for logged-out users
+  // Only show the home page for logged-out users
+  if (user) {
+    return null;
+  }
+
   return (
     <main className="flex flex-col min-h-screen">
       {/* Hero Section */}
