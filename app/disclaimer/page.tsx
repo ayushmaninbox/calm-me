@@ -3,19 +3,19 @@
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle, Brain, HeartPulse, Phone } from "lucide-react";
 
 export default function Disclaimer() {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow">
-        <div className="max-w-3xl mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto px-4 py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Link 
+            <Link
               href="/"
               className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8"
             >
@@ -23,38 +23,89 @@ export default function Disclaimer() {
               back to home
             </Link>
 
-            <h1 className="text-4xl font-bold mb-8">ai disclaimer</h1>
+            <div className="space-y-12">
+              {/* Header Section */}
+              <div className="text-center">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
+                <h1 className="text-4xl font-bold mb-4">ai disclaimer</h1>
+                <p className="text-muted-foreground">
+                  Last updated: March 15, 2024
+                </p>
+              </div>
 
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <p>calm/me is powered by advanced artificial intelligence technology designed to provide emotional support and guidance. However, it is essential to understand the following:</p>
+              {/* Main Content */}
+              <div className="space-y-8">
+                {/* AI Nature Section */}
+                <section className="bg-card border border-border rounded-lg p-6">
+                  <div className="flex items-start gap-4">
+                    <Brain className="w-6 h-6 text-yellow-500 mt-1" />
+                    <div>
+                      <h2 className="text-xl font-semibold mb-4">
+                        nature of AI service
+                      </h2>
+                      <ul className="space-y-3 text-muted-foreground">
+                        <li>• Computer-generated responses</li>
+                        <li>• Not human therapy or medical advice</li>
+                        <li>• May have limitations in understanding</li>
+                        <li>• Responses based on training data</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
 
-              <h2>Not a Substitute for Professional Help</h2>
-              <ul>
-                <li>The AI is not a licensed therapist or medical professional.</li>
-                <li>For severe mental health concerns or emergencies, please contact a licensed therapist or emergency services immediately.</li>
-              </ul>
+                {/* Medical Disclaimer Section */}
+                <section className="bg-card border border-border rounded-lg p-6">
+                  <div className="flex items-start gap-4">
+                    <HeartPulse className="w-6 h-6 text-yellow-500 mt-1" />
+                    <div>
+                      <h2 className="text-xl font-semibold mb-4">
+                        medical disclaimer
+                      </h2>
+                      <ul className="space-y-3 text-muted-foreground">
+                        <li>• Not a substitute for professional care</li>
+                        <li>• Cannot diagnose medical conditions</li>
+                        <li>• No prescription or treatment plans</li>
+                        <li>• Seek professional help when needed</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
 
-              <h2>AI Limitations</h2>
-              <ul>
-                <li>While we strive for empathetic and accurate interactions, the AI may occasionally provide responses that are not entirely relevant or appropriate.</li>
-                <li>User discretion is advised when interpreting AI responses.</li>
-              </ul>
+                {/* Emergency Information */}
+                <section className="bg-destructive/10 text-destructive rounded-lg p-6">
+                  <div className="flex items-start gap-4">
+                    <Phone className="w-6 h-6 mt-1" />
+                    <div>
+                      <h2 className="text-xl font-semibold mb-4">
+                        emergency contacts
+                      </h2>
+                      <ul className="space-y-3">
+                        <li>• Emergency Services: 112</li>
+                        <li>
+                          • National Mental Health Helpline: 1800-599-0019
+                        </li>
+                        <li>• AASRA Suicide Prevention: 91-9820466726</li>
+                        <li>• Vandrevala Foundation: 1860-2662-345</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
 
-              <h2>Usage Responsibility</h2>
-              <ul>
-                <li>Users are responsible for their own well-being and the decisions they make based on their interactions with the platform.</li>
-              </ul>
-
-              <p>By engaging with calm/me, you acknowledge and agree to these terms.</p>
-
-              <div className="bg-yellow-500/10 p-6 rounded-lg mt-8">
-                <h3 className="text-lg font-semibold mb-2">Emergency Resources</h3>
-                <p>If you're experiencing a mental health emergency:</p>
-                <ul>
-                  <li>Emergency Services: 911 (US)</li>
-                  <li>National Suicide Prevention Lifeline: 988</li>
-                  <li>Crisis Text Line: Text HOME to 741741</li>
-                </ul>
+                {/* Contact Information */}
+                <section className="bg-yellow-500/5 rounded-lg p-6 text-center">
+                  <h2 className="text-xl font-semibold mb-4">
+                    questions about our AI?
+                  </h2>
+                  <p className="text-muted-foreground mb-4">
+                    We're happy to explain how our AI works and its limitations.
+                  </p>
+                  <Link
+                    href="mailto:ayushmanmohapatra895@gmail.com"
+                    className="text-yellow-500 hover:text-yellow-600 font-medium"
+                  >
+                    ayushmanmohapatra895@gmail.com
+                  </Link>
+                </section>
               </div>
             </div>
           </motion.div>

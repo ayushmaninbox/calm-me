@@ -11,27 +11,45 @@ import { auth } from '@/lib/firebase';
 import { AuthModal } from '@/components/AuthModal';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Chat from '@/components/Chat';
 
 export default function Home() {
   const [user] = useAuthState(auth);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect logged-in users to chat page
+    const initializeChat = async () => {
+      if (!user || !user.emailVerified) return;
+      
+      try {
+        const res = await fetch("/api/auth");
+        const data = await res.json();
+        setAccessToken(data.accessToken);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     if (user) {
-      router.push('/chat');
+      initializeChat();
     }
-  }, [user, router]);
+  }, [user]);
+
+  // If user is logged in and verified, show the chat
+  if (user?.emailVerified && accessToken) {
+    return (
+      <div className="h-[calc(100vh-3.5rem)] overflow-hidden">
+        <Chat accessToken={accessToken} />
+      </div>
+    );
+  }
 
   const handleAction = (action: "connect" | "try") => {
-    if (user) {
-      router.push("/chat");
-    } else {
-      setAuthMode(action === "connect" ? "login" : "signup");
-      setShowAuthModal(true);
-    }
+    setAuthMode(action === "connect" ? "login" : "signup");
+    setShowAuthModal(true);
   };
 
   // Only show the home page for logged-out users

@@ -9,22 +9,19 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
 
   // Public paths that don't require authentication
-  const publicPaths = ['/', '/login', '/signup'];
+  const publicPaths = ['/login', '/signup', '/privacy-policy', '/terms', '/disclaimer'];
   
-  // Protected paths that require authentication
-  const protectedPaths = ['/chat', '/account'];
+  // Check if we're on the home page
+  const isHomePage = path === '/';
 
-  // Check if the current path is protected
-  const isProtectedPath = protectedPaths.some(pp => path.startsWith(pp));
-  
-  // If there's no token and we're on a protected path, redirect to home
-  if (!token && isProtectedPath) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // If there's a token and we're on the home page, redirect to chat
+  if (token && isHomePage) {
+    return NextResponse.redirect(new URL('/chat', request.url));
   }
 
-  // If there's a token and we're on a public path (except /), redirect to chat
-  if (token && publicPaths.includes(path) && path !== '/') {
-    return NextResponse.redirect(new URL('/chat', request.url));
+  // If there's no token and we're not on a public path, redirect to home
+  if (!token && !publicPaths.includes(path) && !isHomePage) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
