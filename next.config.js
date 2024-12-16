@@ -5,23 +5,18 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Remove all headers and middleware configurations
-  transpilePackages: ['framer-motion', '@emotion/is-prop-valid'],
-  webpack: (config) => {
-    config.resolve = {
-      ...config.resolve,
-      fallback: {
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        http: false,
-        https: false,
-        zlib: false,
-      },
-    };
-    return config;
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.vercel.app https://*.netlify.app"
+          }
+        ]
+      }
+    ];
   }
 };
 
