@@ -8,9 +8,11 @@ import { ThreeAudioVisualizer } from "./ThreeAudioVisualizer";
 import { LoadingScreen } from "./LoadingScreen";
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function Chat({ accessToken }: { accessToken: string }) {
   const configId = process.env['NEXT_PUBLIC_HUME_CONFIG_ID'];
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-yellow-500/5 to-background">
@@ -19,21 +21,21 @@ export default function Chat({ accessToken }: { accessToken: string }) {
           auth={{ type: "accessToken", value: accessToken }}
           configId={configId}
         >
-          <ChatContent />
+          <ChatContent isMobile={isMobile} />
         </VoiceProvider>
       </div>
     </div>
   );
 }
 
-function ChatContent() {
+function ChatContent({ isMobile }: { isMobile: boolean }) {
   const { status } = useVoice();
   const isConnecting = status.value === "connecting";
   const isConnected = status.value === "connected";
 
   return (
     <>
-      {/* Audio Visualizer Container */}
+      {/* Audio Visualizer Container - Show on both mobile and desktop */}
       <AnimatePresence mode="wait">
         {isConnected && (
           <motion.div
@@ -51,7 +53,7 @@ function ChatContent() {
       {/* Messages Container */}
       <div className="relative grow flex flex-col">
         <Messages />
-        <Controls />
+        <Controls isMobile={isMobile} />
         <StartCall />
         
         {/* Loading Screen Overlay */}

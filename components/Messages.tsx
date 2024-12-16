@@ -1,10 +1,11 @@
-//@ts-nocheck
+// @ts-nocheck
 "use client";
 
 import { useVoice } from "@humeai/voice-react";
 import Expressions from "./Expressions";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function Messages() {
   const { messages, status, isMuted } = useVoice();
@@ -14,6 +15,7 @@ export default function Messages() {
   }>({ user: null, assistant: null });
 
   const [isListening, setIsListening] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     // Update listening state based on mic activity
@@ -82,7 +84,7 @@ export default function Messages() {
             transition={{ duration: 0.3 }}
           >
             <motion.div 
-              className="text-xl font-medium text-muted-foreground"
+              className={`text-xl font-medium text-muted-foreground ${isMobile ? 'text-lg' : ''}`}
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ 
                 duration: 2,
@@ -103,7 +105,7 @@ export default function Messages() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="text-xl font-medium">
+            <div className={`text-xl font-medium ${isMobile ? 'text-lg' : ''}`}>
               {currentMessages.assistant.message.content}
             </div>
           </motion.div>
@@ -115,7 +117,9 @@ export default function Messages() {
         {currentMessages.user && (
           <motion.div
             key={`user-${currentMessages.user.id}`}
-            className="w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto"
+            className={`w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto ${
+              isMobile ? 'text-sm' : ''
+            }`}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -129,7 +133,7 @@ export default function Messages() {
                 {getCurrentTime()}
               </div>
             </div>
-            <div className="py-3 px-4 text-lg">
+            <div className={`py-3 px-4 ${isMobile ? 'text-base' : 'text-lg'}`}>
               {currentMessages.user.message.content}
             </div>
             <Expressions values={{ ...currentMessages.user.models.prosody?.scores }} />

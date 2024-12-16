@@ -11,12 +11,14 @@ import { useEffect, useState } from "react";
 import { EndCallDialog } from "./EndCallDialog";
 import { KeyboardShortcuts } from "./KeyboardShortcuts";
 
-export default function Controls() {
+export default function Controls({ isMobile }: { isMobile: boolean }) {
   const { disconnect, status, isMuted, unmute, mute, micFft } = useVoice();
   const [showEndCallDialog, setShowEndCallDialog] = useState(false);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - only for desktop
   useEffect(() => {
+    if (isMobile) return;
+
     const handleKeyPress = (event: KeyboardEvent) => {
       if (status.value === "connected") {
         // Space bar toggles mute
@@ -38,7 +40,7 @@ export default function Controls() {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [status, isMuted, unmute, mute]);
+  }, [status, isMuted, unmute, mute, isMobile]);
 
   const handleEndCall = () => {
     setShowEndCallDialog(true);
@@ -51,8 +53,9 @@ export default function Controls() {
 
   return (
     <>
+      {/* Only show keyboard shortcuts on desktop */}
       <AnimatePresence>
-        {status.value === "connected" && <KeyboardShortcuts />}
+        {!isMobile && status.value === "connected" && <KeyboardShortcuts />}
       </AnimatePresence>
 
       <div
@@ -91,13 +94,16 @@ export default function Controls() {
                 )}
               </Toggle>
 
-              <div className="relative h-12 w-64">
-                <MicFFT 
-                  fft={micFft} 
-                  className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
-                  data-active={!isMuted}
-                />
-              </div>
+              {/* Only show audio visualizer on desktop */}
+              {!isMobile && (
+                <div className="relative h-12 w-64">
+                  <MicFFT 
+                    fft={micFft} 
+                    className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
+                    data-active={!isMuted}
+                  />
+                </div>
+              )}
 
               <Button
                 className="h-12 px-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
