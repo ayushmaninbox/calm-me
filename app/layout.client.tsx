@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { Nav } from "@/components/Nav";
+import { CookieConsent } from "@/components/CookieConsent";
 import { cn } from "@/utils";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
@@ -64,6 +65,7 @@ export default function RootLayoutClient({
           >
             <Nav />
             {children}
+            <CookieConsent />
           </motion.div>
         )}
       </AnimatePresence>

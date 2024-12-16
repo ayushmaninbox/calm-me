@@ -99,8 +99,19 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                ayushman mohapatra
+                ayushman mohapatra 
               </Link>
+              <p>
+              &{" "}
+              <Link
+                href="https://www.linkedin.com/in/kavyan-jain-768742305/"
+                className="underline hover:text-foreground"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                kavyan jain
+              </Link>
+              </p>
             </p>
           </div>
         </div>
