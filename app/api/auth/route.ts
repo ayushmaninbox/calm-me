@@ -1,10 +1,10 @@
 import { getHumeAccessToken } from "@/utils/getHumeAccessToken";
 import { NextResponse } from "next/server";
-
-export const dynamic = 'force-dynamic';
+import { headers } from 'next/headers';
 
 export async function GET() {
   try {
+    const headersList = headers();
     const accessToken = await getHumeAccessToken();
 
     if (!accessToken) {
@@ -22,4 +22,15 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return NextResponse.json({}, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
+  });
 }
