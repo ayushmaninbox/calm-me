@@ -1,15 +1,12 @@
 // Centralized API utilities
 export async function fetchWithAuth(url: string, options: RequestInit = {}) {
   try {
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
     const response = await fetch(url, {
       ...options,
-      headers,
-      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
     });
 
     if (!response.ok) {
@@ -25,7 +22,9 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
 export async function getHumeToken() {
   try {
-    const response = await fetch('/api/auth');
+    // Use environment variable for API URL
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const response = await fetch(`${apiUrl}/api/auth`);
     const data = await response.json();
     
     if (!data.accessToken) {
