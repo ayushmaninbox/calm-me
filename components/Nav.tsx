@@ -12,6 +12,7 @@ import { signOut } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export const Nav = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -20,6 +21,7 @@ export const Nav = () => {
   const [user] = useAuthState(auth);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme");
@@ -28,10 +30,7 @@ export const Nav = () => {
     document.documentElement.classList.toggle("dark", isDark);
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        profileMenuRef.current &&
-        !profileMenuRef.current.contains(event.target as Node)
-      ) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
       }
     };
@@ -50,109 +49,95 @@ export const Nav = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setShowProfileMenu(false);
-      router.push('/');
+      router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
 
-  const handleLogoClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (user) {
-      router.push('/chat');
-    } else {
-      router.push('/');
-    }
-  };
-
   return (
-    <header className="px-4 py-2 flex items-center h-14 z-50 bg-background border-b border-border transition-colors duration-300">
-      <a href={user ? '/chat' : '/'} onClick={handleLogoClick} className="flex items-center gap-2">
+    <header className="px-4 py-2 flex items-center h-14 z-50 bg-background border-b border-border">
+      <Link href="/" className="flex items-center gap-2">
         <Logo className="w-5 h-5" />
-        <div className="text-xl font-bold lowercase-all">calm/me</div>
-      </a>
+        <span className="text-xl font-bold">calm/me</span>
+      </Link>
+      
       <div className="ml-auto flex items-center gap-3">
         <Button
           variant="ghost"
           size="sm"
-          className="lowercase-all"
           onClick={toggleDark}
+          className="text-sm"
         >
           {isDarkMode ? (
-            <Sun className="h-4 w-4 mr-2" />
+            <>
+              <Sun className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">light</span>}
+            </>
           ) : (
-            <Moon className="h-4 w-4 mr-2" />
+            <>
+              <Moon className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">dark</span>}
+            </>
           )}
-          {isDarkMode ? "light" : "dark"}
         </Button>
 
         {user ? (
           <div className="relative" ref={profileMenuRef}>
             <Button
               variant="ghost"
-              size="icon"
-              className="profile-button"
+              size="sm"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="relative"
             >
               {user.photoURL ? (
                 <Image
                   src={user.photoURL}
                   alt="Profile"
-                  width={32}
-                  height={32}
+                  width={24}
+                  height={24}
                   className="rounded-full"
                   unoptimized
                 />
               ) : (
-                <div className="profile-button-placeholder">
-                  <User className="h-4 w-4" />
-                </div>
+                <User className="h-4 w-4" />
               )}
             </Button>
 
             <AnimatePresence>
               {showProfileMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border overflow-hidden"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute right-0 mt-2 w-48 py-2 bg-card border border-border rounded-lg shadow-lg"
                 >
-                  <div className="px-4 py-2 border-b border-border">
-                    <p className="text-sm font-medium truncate">
-                      {user.displayName || user.email}
-                    </p>
-                  </div>
-                  <div className="py-1">
-                    <Link
-                      href="/account"
-                      className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      <Settings className="h-4 w-4" />
-                      account settings
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 text-sm w-full text-left hover:bg-muted transition-colors text-destructive"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      log out
-                    </button>
-                  </div>
+                  <Link
+                    href="/account"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    account settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 text-sm w-full text-left hover:bg-muted transition-colors text-destructive"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    log out
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         ) : (
           <Button
+            variant="default"
             size="sm"
-            className="lowercase-all bg-primary text-primary-foreground"
             onClick={() => setShowAuthModal(true)}
+            className="text-sm"
           >
-            start now
+            log in
           </Button>
         )}
       </div>
@@ -160,8 +145,8 @@ export const Nav = () => {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        mode="signup"
+        mode="login"
       />
     </header>
   );
-};
+}

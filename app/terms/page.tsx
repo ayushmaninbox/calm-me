@@ -102,10 +102,10 @@ export default function Terms() {
                     Contact us for any questions about our terms of service.
                   </p>
                   <Link
-                    href="mailto:ayushmanmohapatra895@gmail.com"
+                    href="mailto:ai.calmme@gmail.com"
                     className="text-yellow-500 hover:text-yellow-600 font-medium"
                   >
-                    ayushmanmohapatra895@gmail.com
+                    ai.calmme@gmail.com
                   </Link>
                 </section>
               </div>

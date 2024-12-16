@@ -3,18 +3,42 @@
 import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { Mic } from "lucide-react";
+import { Mic } from 'lucide-react';
+import { VoiceSelector } from "./VoiceSelector";
+import { useState } from "react";
 
-export default function StartCall() {
+interface VoiceConfig {
+  FEMALE: string;
+  MALE: string;
+}
+
+interface StartCallProps {
+  voiceConfig: VoiceConfig;
+  onVoiceSelect: (voice: keyof VoiceConfig) => void;
+}
+
+export default function StartCall({ voiceConfig, onVoiceSelect }: StartCallProps) {
   const { status, connect } = useVoice();
+  const [selectedVoice, setSelectedVoice] = useState<keyof VoiceConfig | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
 
   const handleStartSession = async () => {
+    if (!selectedVoice) {
+      setShowWarning(true);
+      return;
+    }
+
     try {
-      // Start connection immediately
       await connect();
     } catch (error) {
       console.error("Failed to start session:", error);
     }
+  };
+
+  const handleVoiceSelect = (voice: keyof VoiceConfig) => {
+    setSelectedVoice(voice);
+    onVoiceSelect(voice);
+    setShowWarning(false);
   };
 
   return (
@@ -89,16 +113,19 @@ export default function StartCall() {
             >
               <h2 className="text-3xl font-bold mb-4">ready to talk?</h2>
               <p className="text-muted-foreground mb-8 text-lg">
-                your AI therapist is here to listen and support you
+                select your preferred AI voice and start your session
               </p>
             </motion.div>
 
-            {/* Action Button */}
+            {/* Voice Selector */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
+              className="flex flex-col items-center gap-4"
             >
+              <VoiceSelector onVoiceSelect={handleVoiceSelect} voiceConfig={voiceConfig} />
+
               <Button
                 className="w-full max-w-xs h-14 text-lg bg-yellow-500 hover:bg-yellow-600 text-black rounded-full transition-all duration-300 hover:scale-105"
                 onClick={handleStartSession}
@@ -106,6 +133,16 @@ export default function StartCall() {
                 <Mic className="w-5 h-5 mr-2" />
                 begin session
               </Button>
+
+              {showWarning && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-yellow-500 text-sm"
+                >
+                  Please select a voice before starting the session.
+                </motion.p>
+              )}
             </motion.div>
           </motion.div>
         </motion.div>
@@ -113,3 +150,4 @@ export default function StartCall() {
     </AnimatePresence>
   );
 }
+

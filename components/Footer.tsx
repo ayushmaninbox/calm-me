@@ -45,7 +45,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="mailto:ayushmanmohapatra895@gmail.com"
+                  href="mailto:ai.calmme@gmail.com"
                   className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { VoiceProvider } from "@humeai/voice-react";
 import Messages from "./Messages";
 import Controls from "./Controls";
@@ -10,9 +11,21 @@ import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
+interface VoiceConfig {
+  FEMALE: string;
+  MALE: string;
+}
+
 export default function Chat({ accessToken }: { accessToken: string }) {
-  const configId = process.env['NEXT_PUBLIC_HUME_CONFIG_ID'];
+  const [selectedVoice, setSelectedVoice] = useState<keyof VoiceConfig | null>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
+  
+  const voiceConfig: VoiceConfig = {
+    FEMALE: process.env.NEXT_PUBLIC_FEMALE_VOICE_CONFIG_ID || '',
+    MALE: process.env.NEXT_PUBLIC_MALE_VOICE_CONFIG_ID || '',
+  };
+
+  const configId = selectedVoice ? voiceConfig[selectedVoice] : '';
   
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-yellow-500/5 to-background">
@@ -21,14 +34,20 @@ export default function Chat({ accessToken }: { accessToken: string }) {
           auth={{ type: "accessToken", value: accessToken }}
           configId={configId}
         >
-          <ChatContent isMobile={isMobile} />
+          <ChatContent isMobile={isMobile} voiceConfig={voiceConfig} onVoiceSelect={setSelectedVoice} />
         </VoiceProvider>
       </div>
     </div>
   );
 }
 
-function ChatContent({ isMobile }: { isMobile: boolean }) {
+interface ChatContentProps {
+  isMobile: boolean;
+  voiceConfig: VoiceConfig;
+  onVoiceSelect: (voice: keyof VoiceConfig) => void;
+}
+
+function ChatContent({ isMobile, voiceConfig, onVoiceSelect }: ChatContentProps) {
   const { status } = useVoice();
   const isConnecting = status.value === "connecting";
   const isConnected = status.value === "connected";
@@ -54,7 +73,7 @@ function ChatContent({ isMobile }: { isMobile: boolean }) {
       <div className="relative grow flex flex-col">
         <Messages />
         <Controls isMobile={isMobile} />
-        <StartCall />
+        <StartCall voiceConfig={voiceConfig} onVoiceSelect={onVoiceSelect} />
         
         {/* Loading Screen Overlay */}
         <AnimatePresence>
@@ -74,3 +93,4 @@ function ChatContent({ isMobile }: { isMobile: boolean }) {
     </>
   );
 }
+

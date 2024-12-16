@@ -9,18 +9,15 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function Messages() {
   const { messages, status, isMuted } = useVoice();
-  const [currentMessages, setCurrentMessages] = useState<{
-    user: typeof messages[0] | null;
-    assistant: typeof messages[0] | null;
-  }>({ user: null, assistant: null });
-
+  const [currentMessages, setCurrentMessages] = useState({
+    user: null,
+    assistant: null
+  });
   const [isListening, setIsListening] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
-    // Update listening state based on mic activity
     if (status.value === "connected" && !isMuted) {
-      // Use the Web Audio API to detect actual speech
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
           const audioContext = new AudioContext();
@@ -34,7 +31,7 @@ export default function Messages() {
           function checkAudioLevel() {
             analyser.getByteFrequencyData(dataArray);
             const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-            setIsListening(average > 30); // Adjust threshold as needed
+            setIsListening(average > 30);
             requestAnimationFrame(checkAudioLevel);
           }
 
@@ -72,7 +69,6 @@ export default function Messages() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[300px] gap-6">
-      {/* Assistant Message or Listening State */}
       <AnimatePresence mode="wait">
         {isListening && (
           <motion.div
@@ -81,21 +77,17 @@ export default function Messages() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
           >
             <motion.div 
-              className={`text-xl font-medium text-muted-foreground ${isMobile ? 'text-lg' : ''}`}
+              className={`text-lg md:text-xl font-medium text-muted-foreground`}
               animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
               listening now...
             </motion.div>
           </motion.div>
         )}
+        
         {currentMessages.assistant && (
           <motion.div
             key="assistant-message"
@@ -103,40 +95,37 @@ export default function Messages() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
           >
-            <div className={`text-xl font-medium ${isMobile ? 'text-lg' : ''}`}>
+            <div className={`text-base md:text-xl font-medium px-2 md:px-4`}>
               {currentMessages.assistant.message.content}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* User Message */}
       <AnimatePresence mode="wait">
         {currentMessages.user && (
           <motion.div
             key={`user-${currentMessages.user.id}`}
-            className={`w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto ${
-              isMobile ? 'text-sm' : ''
-            }`}
+            className="w-[90%] max-w-2xl mx-auto bg-yellow-500/5 rounded-2xl mt-auto"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.3 }}
           >
             <div className="flex justify-between items-center pt-4 px-4">
               <div className="text-xs capitalize font-medium leading-none opacity-50">
                 {currentMessages.user.message.role}
               </div>
               <div className="text-xs opacity-50">
-                {getCurrentTime()}
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
-            <div className={`py-3 px-4 ${isMobile ? 'text-base' : 'text-lg'}`}>
+            <div className={`py-3 px-4 text-sm md:text-base leading-relaxed`}>
               {currentMessages.user.message.content}
             </div>
-            <Expressions values={{ ...currentMessages.user.models.prosody?.scores }} />
+            <div className="overflow-x-auto">
+              <Expressions values={currentMessages.user.models.prosody?.scores || {}} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

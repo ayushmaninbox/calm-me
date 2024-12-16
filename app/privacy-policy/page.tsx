@@ -103,10 +103,10 @@ export default function PrivacyPolicy() {
                     We're here to help with any privacy-related concerns.
                   </p>
                   <Link
-                    href="mailto:ayushmanmohapatra895@gmail.com"
+                    href="mailto:ai.calmme@gmail.com"
                     className="text-yellow-500 hover:text-yellow-600 font-medium"
                   >
-                    ayushmanmohapatra895@gmail.com
+                    ai.calmme@gmail.com
                   </Link>
                 </section>
               </div>
