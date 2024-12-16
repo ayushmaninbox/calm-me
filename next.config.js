@@ -5,7 +5,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Remove headers configuration since it's not compatible with static exports
+  // Remove all headers and middleware configurations
   transpilePackages: ['framer-motion', '@emotion/is-prop-valid'],
   webpack: (config) => {
     config.resolve = {

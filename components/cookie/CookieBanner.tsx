@@ -37,7 +37,7 @@ export function CookieBanner() {
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {showBanner && (
         <motion.div
           initial={{ y: 100, opacity: 0 }}
