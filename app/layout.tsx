@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import RootLayoutClient from "./layout.client";
+import { CookieBanner } from "@/components/cookie/CookieBanner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <RootLayoutClient>{children}</RootLayoutClient>
+      <RootLayoutClient>
+        {children}
+        <CookieBanner />
+      </RootLayoutClient>
     </html>
   );
 }

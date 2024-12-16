@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { getHumeToken } from "@/utils/api";
 
 export default function ChatPage() {
   const [user, loading] = useAuthState(auth);
@@ -19,7 +20,6 @@ export default function ChatPage() {
       if (!user) {
         router.push("/");
       } else if (!user.emailVerified) {
-        // Redirect unverified users
         router.push("/?verify=true");
       }
     }
@@ -30,11 +30,10 @@ export default function ChatPage() {
       if (!user || !user.emailVerified) return;
       
       try {
-        const res = await fetch("/api/auth");
-        const data = await res.json();
-        setAccessToken(data.accessToken);
+        const token = await getHumeToken();
+        setAccessToken(token);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to initialize chat:", error);
       } finally {
         setIsInitializing(false);
       }
