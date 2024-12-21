@@ -137,7 +137,7 @@ export const Nav = () => {
             onClick={() => setShowAuthModal(true)}
             className="text-sm"
           >
-            log in
+            start now
           </Button>
         )}
       </div>
