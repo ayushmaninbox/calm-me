@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useVoice } from "@humeai/voice-react";
 import { createBlobGeometry } from './three/BlobGeometry';
@@ -8,7 +8,8 @@ import { createBlobMaterial } from './three/BlobMaterial';
 
 export function ThreeAudioVisualizer() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { messages } = useVoice();
+  const { status } = useVoice();
+  const [isAnimating, setIsAnimating] = useState(false);
   
   useEffect(() => {
     if (!containerRef.current) return;
@@ -50,15 +51,17 @@ export function ThreeAudioVisualizer() {
       // Update time uniform
       material.uniforms.u_time.value = clock.getElapsedTime();
 
-      // Check if AI is speaking
-      const isAssistantSpeaking = messages.some(msg => 
-        msg.type === "assistant_message" && 
-        msg === messages[messages.length - 1]
-      );
-      targetIntensity = isAssistantSpeaking ? 1.0 : 0.0;
+      // Handle blob state transitions
+      if (status.value === "connected" && !isAnimating) {
+        targetIntensity = 1.0;
+        setIsAnimating(true);
+      } else if (status.value !== "connected" && isAnimating) {
+        targetIntensity = 0.0;
+        setIsAnimating(false);
+      }
 
       // Smooth intensity transition
-      currentIntensity += (targetIntensity - currentIntensity) * 0.1;
+      currentIntensity += (targetIntensity - currentIntensity) * 0.05;
       material.uniforms.u_intensity.value = currentIntensity;
 
       // Subtle rotation
@@ -91,7 +94,7 @@ export function ThreeAudioVisualizer() {
       material.dispose();
       renderer.dispose();
     };
-  }, [messages]);
+  }, [status, isAnimating]);
 
   return (
     <div ref={containerRef} className="w-full h-full" />

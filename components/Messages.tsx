@@ -4,7 +4,7 @@
 import { useVoice } from "@humeai/voice-react";
 import Expressions from "./Expressions";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function Messages() {
@@ -14,38 +14,59 @@ export default function Messages() {
     assistant: null
   });
   const [isListening, setIsListening] = useState(false);
+  const micStreamRef = useRef<MediaStream | null>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
-    if (status.value === "connected" && !isMuted) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          const audioContext = new AudioContext();
-          const analyser = audioContext.createAnalyser();
+    let audioContext: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let animationFrame: number;
+
+    const setupMicAnalysis = async () => {
+      if (status.value === "connected" && !isMuted) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          micStreamRef.current = stream;
+          
+          audioContext = new AudioContext();
+          analyser = audioContext.createAnalyser();
           const microphone = audioContext.createMediaStreamSource(stream);
           microphone.connect(analyser);
           analyser.fftSize = 256;
           const bufferLength = analyser.frequencyBinCount;
           const dataArray = new Uint8Array(bufferLength);
 
-          function checkAudioLevel() {
+          const checkAudioLevel = () => {
+            if (!analyser) return;
             analyser.getByteFrequencyData(dataArray);
             const average = dataArray.reduce((a, b) => a + b) / bufferLength;
             setIsListening(average > 30);
-            requestAnimationFrame(checkAudioLevel);
-          }
+            animationFrame = requestAnimationFrame(checkAudioLevel);
+          };
 
           checkAudioLevel();
+        } catch (err) {
+          console.error("Error accessing microphone:", err);
+        }
+      }
+    };
 
-          return () => {
-            stream.getTracks().forEach(track => track.stop());
-            audioContext.close();
-          };
-        })
-        .catch(err => console.error("Error accessing microphone:", err));
-    } else {
-      setIsListening(false);
+    if (status.value === "connected") {
+      setupMicAnalysis();
     }
+
+    return () => {
+      if (audioContext) {
+        audioContext.close();
+      }
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach(track => track.stop());
+        micStreamRef.current = null;
+      }
+    };
   }, [status.value, isMuted]);
 
   useEffect(() => {
@@ -56,21 +77,17 @@ export default function Messages() {
         setCurrentMessages(prev => ({ ...prev, user: lastMessage }));
       } else if (lastMessage.type === "assistant_message") {
         setCurrentMessages(prev => ({ ...prev, assistant: lastMessage }));
+        setIsListening(false);
       }
     } else {
       setCurrentMessages({ user: null, assistant: null });
     }
   }, [messages]);
 
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[300px] gap-6">
       <AnimatePresence mode="wait">
-        {isListening && (
+        {isListening && !isMuted && (
           <motion.div
             key="listening"
             className="absolute top-4 left-0 right-0 text-center px-4 z-10"
@@ -79,11 +96,13 @@ export default function Messages() {
             exit={{ opacity: 0, y: -20 }}
           >
             <motion.div 
-              className={`text-lg md:text-xl font-medium text-muted-foreground`}
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              className="text-lg md:text-xl font-medium text-muted-foreground"
             >
-              listening now...
+              listening now
+              <motion.span
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >...</motion.span>
             </motion.div>
           </motion.div>
         )}
@@ -96,7 +115,7 @@ export default function Messages() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className={`text-base md:text-xl font-medium px-2 md:px-4`}>
+            <div className="text-base md:text-xl font-medium px-2 md:px-4">
               {currentMessages.assistant.message.content}
             </div>
           </motion.div>
@@ -120,7 +139,7 @@ export default function Messages() {
                 {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
-            <div className={`py-3 px-4 text-sm md:text-base leading-relaxed`}>
+            <div className="py-3 px-4 text-sm md:text-base leading-relaxed">
               {currentMessages.user.message.content}
             </div>
             <div className="overflow-x-auto">

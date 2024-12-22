@@ -2,7 +2,7 @@
 
 import { useVoice } from "@humeai/voice-react";
 import { Button } from "./ui/button";
-import { Mic, MicOff, Phone } from 'lucide-react';
+import { Mic, MicOff, Phone } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Toggle } from "./ui/toggle";
 import MicFFT from "./MicFFT";
@@ -70,54 +70,92 @@ export default function Controls({ isMobile }: { isMobile: boolean }) {
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              transition={{ 
+              transition={{
                 duration: 0.6,
-                ease: [0.4, 0, 0.2, 1]
+                ease: [0.4, 0, 0.2, 1],
               }}
-              className="p-4 bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg flex items-center gap-6"
-            >
-              <Toggle
-                pressed={!isMuted}
-                onPressedChange={() => {
-                  if (isMuted) {
-                    unmute();
-                  } else {
-                    mute();
-                  }
-                }}
-                className="h-12 w-12 rounded-full bg-muted data-[state=on]:bg-yellow-500 data-[state=on]:text-black transition-colors duration-300"
-              >
-                {isMuted ? (
-                  <MicOff className="h-5 w-5" />
-                ) : (
-                  <Mic className="h-5 w-5" />
-                )}
-              </Toggle>
-
-              {/* Only show audio visualizer on desktop */}
-              {!isMobile && (
-                <div className="relative h-12 w-64">
-                  <MicFFT 
-                    fft={micFft} 
-                    className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
-                    data-active={!isMuted}
-                  />
-                </div>
+              className={cn(
+                isMobile
+                  ? "flex gap-4 p-4"
+                  : "p-4 bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg flex items-center gap-6"
               )}
+            >
+              {isMobile ? (
+                <>
+                  <Button
+                    size="icon"
+                    variant={isMuted ? "outline" : "default"}
+                    onClick={() => {
+                      if (isMuted) {
+                        unmute();
+                      } else {
+                        mute();
+                      }
+                    }}
+                    className={cn(
+                      "h-14 w-14 rounded-full shadow-lg",
+                      !isMuted && "bg-yellow-500 hover:bg-yellow-600 text-black"
+                    )}
+                  >
+                    {isMuted ? (
+                      <MicOff className="h-6 w-6" />
+                    ) : (
+                      <Mic className="h-6 w-6" />
+                    )}
+                  </Button>
 
-              <Button
-                className="h-12 px-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
-                onClick={handleEndCall}
-              >
-                <Phone className="h-5 w-5 mr-2" />
-                end call
-              </Button>
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={handleEndCall}
+                    className="h-14 w-14 rounded-full shadow-lg"
+                  >
+                    <Phone className="h-6 w-6" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Toggle
+                    pressed={!isMuted}
+                    onPressedChange={() => {
+                      if (isMuted) {
+                        unmute();
+                      } else {
+                        mute();
+                      }
+                    }}
+                    className="h-12 w-12 rounded-full bg-muted data-[state=on]:bg-yellow-500 data-[state=on]:text-black transition-colors duration-300"
+                  >
+                    {isMuted ? (
+                      <MicOff className="h-5 w-5" />
+                    ) : (
+                      <Mic className="h-5 w-5" />
+                    )}
+                  </Toggle>
+
+                  <div className="relative h-12 w-64">
+                    <MicFFT
+                      fft={micFft}
+                      className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
+                      data-active={!isMuted}
+                    />
+                  </div>
+
+                  <Button
+                    className="h-12 px-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
+                    onClick={handleEndCall}
+                  >
+                    <Phone className="h-5 w-5 mr-2" />
+                    end call
+                  </Button>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <EndCallDialog 
+      <EndCallDialog
         isOpen={showEndCallDialog}
         onClose={() => setShowEndCallDialog(false)}
         onConfirm={handleConfirmEndCall}
