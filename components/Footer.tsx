@@ -23,7 +23,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="https://www.instagram.com/theayushmanguy/"
+                  href="https://www.instagram.com/ai.calmme/"
                   className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -34,7 +34,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://www.linkedin.com/in/ayushman-mohapatra/"
+                  href="#"
                   className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                   target="_blank"
                   rel="noopener noreferrer"
