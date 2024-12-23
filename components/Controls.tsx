@@ -21,16 +21,11 @@ export default function Controls({ isMobile }: { isMobile: boolean }) {
 
     const handleKeyPress = (event: KeyboardEvent) => {
       if (status.value === "connected") {
-        // Space bar toggles mute
         if (event.code === "Space") {
           event.preventDefault();
-          if (isMuted) {
-            unmute();
-          } else {
-            mute();
-          }
+          if (isMuted) unmute();
+          else mute();
         }
-        // Escape key shows end call dialog
         if (event.code === "Escape") {
           event.preventDefault();
           setShowEndCallDialog(true);
@@ -42,123 +37,90 @@ export default function Controls({ isMobile }: { isMobile: boolean }) {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [status, isMuted, unmute, mute, isMobile]);
 
-  const handleEndCall = () => {
-    setShowEndCallDialog(true);
-  };
-
-  const handleConfirmEndCall = () => {
-    disconnect();
-    setShowEndCallDialog(false);
-  };
+  if (status.value !== "connected") return null;
 
   return (
     <>
-      {/* Only show keyboard shortcuts on desktop */}
-      <AnimatePresence>
-        {!isMobile && status.value === "connected" && <KeyboardShortcuts />}
-      </AnimatePresence>
+      {!isMobile && <KeyboardShortcuts />}
 
-      <div
-        className={cn(
-          "fixed bottom-0 left-0 w-full flex flex-col items-center justify-end pb-4",
-          "bg-gradient-to-t from-card via-card/90 to-card/0"
-        )}
-      >
-        <AnimatePresence>
-          {status.value === "connected" && (
-            <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              transition={{
-                duration: 0.6,
-                ease: [0.4, 0, 0.2, 1],
-              }}
+      {isMobile ? (
+        // Mobile Controls
+        <div className="fixed bottom-0 left-0 w-full flex justify-between px-6 py-4 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="pointer-events-auto"
+          >
+            <Button
+              size="icon"
+              variant={isMuted ? "outline" : "default"}
+              onClick={() => isMuted ? unmute() : mute()}
               className={cn(
-                isMobile
-                  ? "flex gap-4 p-4"
-                  : "p-4 bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg flex items-center gap-6"
+                "h-12 w-12 rounded-full shadow-lg",
+                !isMuted && "bg-yellow-500 hover:bg-yellow-600 text-black"
               )}
             >
-              {isMobile ? (
-                <>
-                  <Button
-                    size="icon"
-                    variant={isMuted ? "outline" : "default"}
-                    onClick={() => {
-                      if (isMuted) {
-                        unmute();
-                      } else {
-                        mute();
-                      }
-                    }}
-                    className={cn(
-                      "h-14 w-14 rounded-full shadow-lg",
-                      !isMuted && "bg-yellow-500 hover:bg-yellow-600 text-black"
-                    )}
-                  >
-                    {isMuted ? (
-                      <MicOff className="h-6 w-6" />
-                    ) : (
-                      <Mic className="h-6 w-6" />
-                    )}
-                  </Button>
+              {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </Button>
+          </motion.div>
 
-                  <Button
-                    size="icon"
-                    variant="destructive"
-                    onClick={handleEndCall}
-                    className="h-14 w-14 rounded-full shadow-lg"
-                  >
-                    <Phone className="h-6 w-6" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Toggle
-                    pressed={!isMuted}
-                    onPressedChange={() => {
-                      if (isMuted) {
-                        unmute();
-                      } else {
-                        mute();
-                      }
-                    }}
-                    className="h-12 w-12 rounded-full bg-muted data-[state=on]:bg-yellow-500 data-[state=on]:text-black transition-colors duration-300"
-                  >
-                    {isMuted ? (
-                      <MicOff className="h-5 w-5" />
-                    ) : (
-                      <Mic className="h-5 w-5" />
-                    )}
-                  </Toggle>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="pointer-events-auto"
+          >
+            <Button
+              size="icon"
+              variant="destructive"
+              onClick={() => setShowEndCallDialog(true)}
+              className="h-12 w-12 rounded-full shadow-lg"
+            >
+              <Phone className="h-5 w-5" />
+            </Button>
+          </motion.div>
+        </div>
+      ) : (
+        // Desktop Controls
+        <div className="fixed bottom-0 left-0 w-full flex justify-center pb-4">
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="p-4 bg-card/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg flex items-center gap-6"
+          >
+            <Toggle
+              pressed={!isMuted}
+              onPressedChange={() => isMuted ? unmute() : mute()}
+              className="h-12 w-12 rounded-full bg-muted data-[state=on]:bg-yellow-500 data-[state=on]:text-black transition-colors duration-300"
+            >
+              {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </Toggle>
 
-                  <div className="relative h-12 w-64">
-                    <MicFFT
-                      fft={micFft}
-                      className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
-                      data-active={!isMuted}
-                    />
-                  </div>
+            <div className="relative h-12 w-64">
+              <MicFFT
+                fft={micFft}
+                className="fill-current opacity-50 data-[active=true]:opacity-100 transition-opacity duration-300"
+                data-active={!isMuted}
+              />
+            </div>
 
-                  <Button
-                    className="h-12 px-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
-                    onClick={handleEndCall}
-                  >
-                    <Phone className="h-5 w-5 mr-2" />
-                    end call
-                  </Button>
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            <Button
+              className="h-12 px-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300"
+              onClick={() => setShowEndCallDialog(true)}
+            >
+              <Phone className="h-5 w-5 mr-2" />
+              end call
+            </Button>
+          </motion.div>
+        </div>
+      )}
 
       <EndCallDialog
         isOpen={showEndCallDialog}
         onClose={() => setShowEndCallDialog(false)}
-        onConfirm={handleConfirmEndCall}
+        onConfirm={() => {
+          disconnect();
+          setShowEndCallDialog(false);
+        }}
       />
     </>
   );
