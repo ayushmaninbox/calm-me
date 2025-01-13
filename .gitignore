@@ -37,3 +37,6 @@ package-lock.json
 .env
 .env*.local
 promt.txt
+
+#private files
+6-month-plan.docx
