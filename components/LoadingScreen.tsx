@@ -16,10 +16,10 @@ export function LoadingScreen() {
         transition={{ delay: 0.2, duration: 0.3 }}
       >
         <motion.div 
-          className="w-24 h-24"
+          className="w-24 h-24 relative"
           animate={{ 
-            scale: [1, 1.1, 1],
-            rotate: [0, 0, 0]
+            y: [0, -20, 0],
+            scale: [1, 1.1, 1]
           }}
           transition={{ 
             duration: 2,
@@ -27,41 +27,15 @@ export function LoadingScreen() {
             ease: "easeInOut"
           }}
         >
-          <div className="relative w-full h-full">
-            <div 
-              className="absolute inset-0"
-              style={{ 
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gridTemplateRows: "repeat(2, 1fr)",
-                gap: "4px"
-              }}
-            >
-              {[
-                "#8C6700",
-                "#B58600",
-                "#F7B500",
-                "#FFD04D"
-              ].map((color, index) => (
-                <motion.div 
-                  key={color}
-                  className="rounded-lg"
-                  style={{ backgroundColor: color }}
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ 
-                    scale: 1, 
-                    rotate: 0,
-                  }}
-                  transition={{
-                    delay: index * 0.15,
-                    duration: 0.5,
-                    ease: "easeOut"
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+          <div 
+            className="absolute inset-0 bg-yellow-500" 
+            style={{ 
+              transform: "rotate(45deg)",
+              borderRadius: "25%"
+            }} 
+          />
         </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
