@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { uploadImage, deleteImage } from "@/lib/cloudinary";
+import { upsertProfile } from "@/lib/supabase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
+import { updateProfile } from "firebase/auth";
 
 interface ImageUploadProps {
   currentPhotoURL: string | null;
@@ -12,35 +17,66 @@ interface ImageUploadProps {
   isUploading: boolean;
 }
 
-export function ImageUpload({ currentPhotoURL, onImageSelect, isUploading }: ImageUploadProps) {
+export function ImageUpload({ currentPhotoURL, isUploading }: ImageUploadProps) {
+  const [user] = useAuthState(auth);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (file: File | null) => {
-    if (!file) return;
+    if (!file || !user) return;
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
+      setError('Please upload an image file');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size should be less than 5MB');
+      setError('File size should be less than 5MB');
       return;
     }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewURL(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      setIsProcessing(true);
+      setError(null);
 
-    // Upload file
-    await onImageSelect(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewURL(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // First create/update the profile
+      await upsertProfile({
+        id: user.uid,
+        email: user.email!,
+        display_name: user.displayName || null,
+      });
+
+      // Upload new image
+      const { url, publicId } = await uploadImage(file);
+
+      // Update profile with new image info
+      await upsertProfile({
+        id: user.uid,
+        photo_url: url,
+        cloudinary_public_id: publicId,
+      });
+
+      // Update Firebase profile
+      await updateProfile(user, { photoURL: url });
+
+    } catch (error: any) {
+      console.error("Error processing image:", error);
+      setError(error.message || "Failed to process image. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -87,7 +123,7 @@ export function ImageUpload({ currentPhotoURL, onImageSelect, isUploading }: Ima
         onDrop={handleDrop}
       >
         <AnimatePresence mode="wait">
-          {isUploading ? (
+          {isProcessing ? (
             <motion.div
               key="loading"
               initial={{ opacity: 0 }}
@@ -144,11 +180,21 @@ export function ImageUpload({ currentPhotoURL, onImageSelect, isUploading }: Ima
       <Button
         size="icon"
         onClick={handleButtonClick}
-        disabled={isUploading}
+        disabled={isProcessing}
         className="absolute -bottom-2 -right-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-black"
       >
         <Upload className="w-4 h-4" />
       </Button>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="absolute top-full left-0 right-0 mt-2 text-sm text-destructive text-center"
+        >
+          {error}
+        </motion.div>
+      )}
     </div>
   );
 }

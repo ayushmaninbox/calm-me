@@ -1,4 +1,4 @@
-// @ts-nocheck
+//@ts-nocheck
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,6 +12,9 @@ import { useVoice } from "@humeai/voice-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useVoicePreference } from "@/hooks/useVoicePreference";
+import { saveChatMessage } from "@/lib/supabase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 interface VoiceConfig {
   FEMALE: string;
@@ -21,6 +24,7 @@ interface VoiceConfig {
 export default function Chat({ accessToken }: { accessToken: string }) {
   const { selectedVoice, setVoicePreference } = useVoicePreference();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const [user] = useAuthState(auth);
   
   const voiceConfig: VoiceConfig = {
     FEMALE: process.env.NEXT_PUBLIC_FEMALE_VOICE_CONFIG_ID || '',
@@ -41,6 +45,7 @@ export default function Chat({ accessToken }: { accessToken: string }) {
             voiceConfig={voiceConfig} 
             selectedVoice={selectedVoice}
             onVoiceSelect={setVoicePreference}
+            userId={user?.uid}
           />
         </VoiceProvider>
       </div>
@@ -53,12 +58,40 @@ interface ChatContentProps {
   voiceConfig: VoiceConfig;
   selectedVoice: string | null;
   onVoiceSelect: (voice: keyof VoiceConfig) => void;
+  userId?: string;
 }
 
-function ChatContent({ isMobile, voiceConfig, selectedVoice, onVoiceSelect }: ChatContentProps) {
-  const { status } = useVoice();
+function ChatContent({ isMobile, voiceConfig, selectedVoice, onVoiceSelect, userId }: ChatContentProps) {
+  const { status, messages } = useVoice();
   const isConnecting = status.value === "connecting";
   const isConnected = status.value === "connected";
+
+  // Save messages to Supabase
+  useEffect(() => {
+    async function saveMessage(message: any) {
+      if (!userId) return;
+
+      try {
+        const content = message.message?.content;
+        if (!content) return;
+
+        await saveChatMessage({
+          user_id: userId,
+          content: content,
+          role: message.type === 'user_message' ? 'user' : 'assistant',
+          emotions: message.type === 'user_message' ? message.models?.prosody?.scores : null,
+        });
+      } catch (error) {
+        console.error('Error saving message:', error);
+      }
+    }
+
+    // Save the latest message if it exists
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      saveMessage(latestMessage);
+    }
+  }, [messages, userId]);
 
   return (
     <>
