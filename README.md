@@ -1,7 +1,5 @@
 # calm/me - Your Personal AI Therapist
 
-![calm/me Logo](https://via.placeholder.com/200x80/FCD34D/000000?text=calm%2Fme)
-
 > **Your free 24/7 AI therapist** - Talk through your problems with ease, no fees, no wait times, no downloads, no hassle.
 
 ## 🌟 Overview
