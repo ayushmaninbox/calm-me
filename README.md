@@ -188,15 +188,6 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-```
-
 ### Manual Deployment
 1. Build the application: `pnpm build`
 2. Deploy the `.next` folder to your hosting provider
@@ -222,23 +213,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Hume AI** - For emotion recognition technology
 - **Firebase** - For authentication and hosting
 - **Supabase** - For database and real-time features
-- **Vercel** - For deployment platform
+- **Netlify** - For deployment platform
 - **Open Source Community** - For the amazing tools and libraries
-
-## 📞 Support
-
-- **Email**: [ai.calmme@gmail.com](mailto:ai.calmme@gmail.com)
-- **Instagram**: [@ai.calmme](https://www.instagram.com/ai.calmme/)
-- **Issues**: [GitHub Issues](https://github.com/ayushmaninbox/calm-me/issues)
 
 ## 🔗 Links
 
-- **Live Demo**: [calm-me.vercel.app](https://calm-me.vercel.app)
-- **Documentation**: [docs.calm-me.com](https://docs.calm-me.com)
-- **API Reference**: [api.calm-me.com](https://api.calm-me.com)
+- **Live Demo**: [calm-me.netlify.app](https://calm-me.netlify.app/)
 
 ---
 
-**Made with ❤️ by [Ayushman Mohapatra](https://ayushmanmohapatra.netlify.app/) & [Kavyan Jain](https://www.linkedin.com/in/kavyan-jain-768742305/)**
+**Made with ❤️ by Ayushman Mohapatra**
 
 *Be heard. Be understood. Be better.*
